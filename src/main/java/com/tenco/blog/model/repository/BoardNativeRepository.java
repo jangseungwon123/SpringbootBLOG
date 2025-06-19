@@ -20,6 +20,29 @@ public class BoardNativeRepository {
     public BoardNativeRepository(EntityManager em){
         this.em = em;
     }
+    @Transactional
+    public void deleteById(Long id) {
+        Query query = em.createNativeQuery("delete from board_tb where id = ? ");
+        query.setParameter(1, id);
+        // Insert, Update, Delete 실행 시킬 때
+        query.executeUpdate();
+    }
+
+    public Board findById(Long id){
+        //WHERE  조건절을 활용해서 단건에 데이터를 조회
+        String sqlStr = "select * from board_tb where id = ? ";
+        Query query = em.createNativeQuery(sqlStr, Board.class);
+        // SQL injection 방지 - 파라미터 바인딩
+        // 직접 문자열을 연결하지 않고 ? 를 사용해서 안전하게 값 전달
+        query.setParameter(1, id);
+
+        //query.getSingleResult();
+
+        //query.getSingleResult() --> 단일 결과만 반환하는 메서드
+        // 주의 : null 리턴된다면 예외발생 --> try-catch 처리를 해야함
+        // 주의 : 혹시 결과가 2개 행을 리턴이 된다면 예외가 발생하게 된다.
+        return (Board) query.getSingleResult();
+    }
 
     // 게시글 목록 조회
     public List<Board> findAll(){

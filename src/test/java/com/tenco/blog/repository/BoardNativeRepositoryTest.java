@@ -2,6 +2,7 @@ package com.tenco.blog.repository;
 
 import com.tenco.blog.model.Board;
 import com.tenco.blog.model.repository.BoardNativeRepository;
+import jakarta.persistence.Id;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +19,39 @@ public class BoardNativeRepositoryTest {
     @Autowired // 자동으로 DI 처리(의존성 주입)
    private BoardNativeRepository br;
 
+
+
    // DI - 의존성 주입
 //   public BoardNativeRepositoryTest(BoardNativeRepository br){
 //       this.br = br;
 //   }
+
+    @Test
+    public void deleteById_test(){
+        //given
+        Long id = 4L;
+        //when
+        br.deleteById(id);
+
+        //then
+        // 조회했을때 3개가 나와야 함
+        List<Board> boardList=  br.findAll();
+        Assertions.assertThat(boardList.size()).isEqualTo(3);
+    }
+
+    @Test
+    public void findById_test() {
+        //TDD 단위 테스트 작업이라 한다.
+        // given
+        Long id = 1L;
+        //when
+        Board board = br.findById(id);
+        //then
+        Assertions.assertThat(board.getTitle()).isEqualTo("제목1");
+        Assertions.assertThat(board.getUsername()).isEqualTo("ssar");
+        //객체가 null 아닌지 확인
+        Assertions.assertThat(board).isNotNull();
+    }
 
     @Test
     public void findAll_test(){

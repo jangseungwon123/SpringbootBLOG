@@ -14,12 +14,45 @@ import java.util.List;
 
 @Controller // IoC 대상 - 싱글톤 패턴으로 관리 됨
 public class BoardController {
-
+    // BoardNativeRepository // DB에 접근하기 위한 Repository 객체이다.
     private BoardNativeRepository boardNativeRepository;
     //DI : 의존성 주입 : 스프링이 자동으로 객체를 주입
     public BoardController(BoardNativeRepository boardNativeRepository){
         this.boardNativeRepository= boardNativeRepository;
     }
+
+    @PostMapping("/board/{id}/delete")
+    public String delete(@PathVariable(name = "id") Long id) {
+        // 클라이언트 --> 삭제 요청 처리 --> 응답 : 리다이렉트 -- 클라이언트--> / --> 응답
+
+        boardNativeRepository.deleteById(id);
+        //PRG 패턴 (Post-Redirect-Get) 적용
+        // 삭제 후 메인 페이지로 리다이렉트 하여 중복 삭제 방지
+        // 새로 고침을 해도 삭제가 다시 실행되지 않음
+        return "redirect:/";
+    }
+
+
+    /**
+     * 상세보기 화면 요청
+     * board/1
+     */
+    @GetMapping("/board/{id}")
+    public String detail(@PathVariable(name = "id") Long id,
+                         HttpServletRequest request) {
+
+        Board board = boardNativeRepository.findById(id);
+        request.setAttribute("board", board);
+        return "board/detail";
+    }
+
+//    @GetMapping("/board/{id}")
+//    public String detail(@PathVariable(name = "id") Long id, HttpServletRequest request ) {
+//
+//        Board board = boardNativeRepository.findById(id);
+//        request.setAttribute("board", board);
+//        return "board/ditail";
+//    }
 
 
     // username, title, content <--- DTO 받는 방법, 기본 데이터 타입 설정
@@ -68,16 +101,6 @@ public class BoardController {
 
     //
 
-    /**
-     * 상세보기 화면 요청
-     * board/1
-     */
-    @GetMapping("/board/{id}")
-    public String detail(@PathVariable(name = "id") Integer id) {
-        // URL 에서 받은 id 값을 사용해서 특정 게시글 상세보기 조회
-        // 실제로는 이 id값으로 데이터베이스에 있는 게시글 조회 하고
-        // 머스태치 파일로 데이터를 내려 주어야 함 (Model)
-        return "board/detail";
-    }
+
 
 }
