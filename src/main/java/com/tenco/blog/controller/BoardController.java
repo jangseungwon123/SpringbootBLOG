@@ -4,6 +4,7 @@ package com.tenco.blog.controller;
 import com.tenco.blog.model.Board;
 import com.tenco.blog.model.repository.BoardNativeRepository;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,10 +16,37 @@ import java.util.List;
 @Controller // IoC 대상 - 싱글톤 패턴으로 관리 됨
 public class BoardController {
     // BoardNativeRepository // DB에 접근하기 위한 Repository 객체이다.
+//    @Autowired
     private BoardNativeRepository boardNativeRepository;
     //DI : 의존성 주입 : 스프링이 자동으로 객체를 주입
     public BoardController(BoardNativeRepository boardNativeRepository){
         this.boardNativeRepository= boardNativeRepository;
+    }
+
+    @PostMapping("/board/{id}/update-form")
+    public  String update(@PathVariable(name = "id") Long id,
+                              @RequestParam(name = "title") String title,
+                              @RequestParam(name = "content") String content,
+                              @RequestParam(name = "username") String username,
+                              HttpServletRequest request){
+            boardNativeRepository.updateById(id, title, content, username);
+//        Board board = boardNativeRepository.updateById(id,title,content,username);
+
+        //PRG 패턴ㄴ 적용
+        // 수정 완료 후 해당 게시글 상세보기 페이지로 리다이렉트
+        // 게시글 상세보기 URL -->
+        return "redirect:/board/" + id;
+    }
+
+    // 게시글 수정 화면 요청 GET 방식
+    //board/{{board.id}}/update-form
+    @GetMapping("/board/{id}/update-form")
+    public  String updateFrom(@PathVariable(name = "id") Long id,
+                              HttpServletRequest request){
+
+        Board board = boardNativeRepository.findById(id);
+        request.setAttribute("board",board);
+        return "board/update-form";
     }
 
     @PostMapping("/board/{id}/delete")
